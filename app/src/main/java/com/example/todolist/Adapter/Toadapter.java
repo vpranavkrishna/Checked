@@ -2,7 +2,6 @@ package com.example.todolist.Adapter;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.todolist.MainActivity;
+import com.example.todolist.Utils.MainActivity;
 import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.R;
 import com.example.todolist.Utils.AddNewTask;
@@ -38,7 +37,7 @@ public class Toadapter extends RecyclerView.Adapter<Toadapter.ViewHolder> {
       public void onBindViewHolder(ViewHolder holder ,int position)
       {
           db.openDatabase();
-          ToDoModel item = toDoModelList.get(position);
+          final ToDoModel item = toDoModelList.get(position);
           holder.task.setText(item.getTask());
           holder.task.setChecked(tobool(item.getStatus()));
           holder.task.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -56,28 +55,36 @@ public class Toadapter extends RecyclerView.Adapter<Toadapter.ViewHolder> {
           });
       }
 
+
+
+
+
+    private boolean tobool(int n)
+      {
+          return n !=0;
+      }
     @Override
     public int getItemCount() {
         return toDoModelList.size();
     }
-
     public Context getContext() {
         return activity;
     }
-
-    private boolean tobool(int n)
-      {
-          if(n==1)
-              return true;
-          else
-              return false;
-      }
 
       public void setTask(List<ToDoModel> toDoModelList)
       {
           this.toDoModelList=toDoModelList;
           notifyDataSetChanged();
       }
+
+    public void deleteitem(int position)
+    {
+        ToDoModel item = toDoModelList.get(position);
+        db.deleteTask(item.getId());
+        toDoModelList.remove(position);
+        notifyItemRemoved(position);
+    }
+
       public void edititem(int position)
       {
           ToDoModel item = toDoModelList.get(position);

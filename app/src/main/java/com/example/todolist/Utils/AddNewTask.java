@@ -1,9 +1,8 @@
 package com.example.todolist.Utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.database.DefaultDatabaseErrorHandler;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,14 +15,11 @@ import android.widget.EditText;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.todolist.DialogCloseListener;
 import com.example.todolist.Model.ToDoModel;
 import com.example.todolist.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import java.util.Collection;
-
-import static android.view.WindowManager.*;
+import java.util.Objects;
 
 public class AddNewTask extends BottomSheetDialogFragment {
     public static final String TAG = "ActionBottomDialog";
@@ -51,19 +47,23 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
         super.onViewCreated(view, savedInsatanceState);
         //Since its a fragment u have to get view first
-        addTask = getView().findViewById(R.id.newtask);
+        addTask = Objects.requireNonNull(getView()).findViewById(R.id.newtask);
         save = getView().findViewById(R.id.save);
-        db = new DBhandler(getActivity());
-        db.openDatabase();
         boolean isUpdate = false;
+
+
         final Bundle bundle = getArguments();
         if (bundle != null) {
             isUpdate = true;
             String task = bundle.getString("task");
             addTask.setText(task);
+
             if (task.length() > 0) {
-                save.setTextColor(ContextCompat.getColor(getContext(),android.R.color.holo_orange_dark));
+                save.setTextColor(ContextCompat.getColor(getContext(), android.R.color.holo_orange_dark));
             }
+        }
+            db = new DBhandler(getActivity());
+            db.openDatabase();
             addTask.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -72,9 +72,9 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (addTask.toString() == null) {
+                    if (s.toString().equals("")) {
                         save.setEnabled(false);
-                        save.setTextColor(ContextCompat.getColor(getContext(), android.R.color.transparent));
+                        save.setTextColor(Color.GRAY);
                     } else {
                         save.setEnabled(true);
                         save.setTextColor(ContextCompat.getColor(getContext(), android.R.color.holo_orange_dark));
@@ -99,11 +99,12 @@ public class AddNewTask extends BottomSheetDialogFragment {
                         ToDoModel task = new ToDoModel();
                         task.setTask(text);
                         task.setStatus(0);
+                        db.insertTask(task);
                     }
                     dismiss();
                 }
             });
-        }
+
     }
 @Override
     public void onDismiss(DialogInterface dialogInterface)
